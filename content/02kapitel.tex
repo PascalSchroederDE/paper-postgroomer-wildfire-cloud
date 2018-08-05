@@ -3,6 +3,38 @@
 
 \section{Kubernetes cluster solution}
 
+One very common system for managing cluster systems as described in chapter 1.1 is \acl{K8s} - or short \acs{K8s}. Originally developed by Google and by now maintained by the Cloud Native Computing Foundation, Kubernetes is an ``open-source platform for managing containerized workloads and services''. For unterstanding what that means the concept of containers needs to be described first.
+
+%https://kubernetes.io/docs/concepts/overview/what-is-kubernetes/
+
+Containers are isolated, stand-alone packages of software, similar to processes. In those packages everything is included, which this piece of software needs, like runtime, libraries, settings and other system tools.  These containers have a completely different environment within themselves than outside. This environment included for example network routes, dns settings and control group limits. This enables the possibility to share common resources and still be isolated from any other process as well as the host system. Thereby containers are always working the same, no matter on what system they run or in which environment.
+
+%1 https://www.informatik-aktuell.de/entwicklung/methoden/kubernetes-architektur-und-einsatz-einfuehrung-mit-beispielen.html
+%https://www.docker.com/what-container
+
+%rückführung zur ausfallsicherheit - replikation (auch master); zustandslosigkeit ansprechen
+
+Kubernetes is for an automating deployment, scaling and management of these containers within a cluster of nodes. Thereby there has to be at least one master node. This master nodes owns the API-Server, the scheduler, the controller manager and a key value store called etcd. 
+
+First a pod is the smallest unit in Kubernetes. It contains one ore more containers, which are deployed together on the same host. Thereby they can work together to perform a set of tasks.%more?
+%https://coreos.com/kubernetes/docs/latest/pods.html
+
+The clients uses the API Server to run all of their requests against it. That means the API Server is responsible for the communication between Master and Worker nodes and for updating corresponding objected in the etcd. Also the authentication and authorization is task of the API Server. The protocol for the communication is written in \acs{REST} (\acl{REST}). For reacting on changes of clients there is also a watch mechanism implemented, which triggers an action after a specific action, like the scheduler creating a new pod.%???
+%sequenzdiagramm?
+
+The Controller Manager is a daemon, which embeds all of the Kubernetes controller. Examples for them are the Replication Controller or the Endpoint Controller. Those controllers are watching the state of the cluster through the API Server. Whenever a specific action happens, it performs the necessary actions to hold the current state or to move the cluster towards the desired state.
+
+The scheduler manages the binding of pods to nodes. Therefore it watches for new deployments as well as for old ones to create new pods if a new deployment is created or recreating a pod whenever a pod gets destroyed for some reason. The scheduler organizes the allocation of the pods within the cluster on the basis of available ressources of the pods. That means, that it always create pods, where the most resources are available, or reorganize the allocation if there is a change in the resource allocation of the cluster.%??; Scheduler image
+
+The etcd is a key-value store, which stores the configuration data and the condition of the Kubernetes cluster. The etcd also contains a watch feature, which listens to changes to keys and triggers the API server to perform all necessary actions to move the current state of the cluster towards the desired state.
+
+%1
+%2 https://medium.com/jorgeacetozi/kubernetes-master-components-etcd-api-server-controller-manager-and-scheduler-3a0179fc8186
+
+%Worker nodes beinhaltet? Bild!
+%Rolling update
+%Deployments
+
 \section{Spark}
 
 \section{Wildfire}
