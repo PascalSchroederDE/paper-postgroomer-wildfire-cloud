@@ -1,6 +1,48 @@
 % !TeX root = ../dokumentation.tex
 
+\appendix
+\addcontentsline{toc}{chapter}{Appendix}
 
-\begin{thebibliography}{..........}
 
-\end{thebibliography}
+\chapter*{A) Dockerfile}
+\begin{lstlisting}
+GNU nano 2.5.3 File: Dockerfile
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements. See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+FROM ngdevop/development-centos
+ARG img_path=dockerfiles
+
+RUN set -ex && \
+apk upgrade --no-cache && \
+apk add --no-cache bash tini libc6-compat && \
+mkdir -p /opt/bluspark && \
+mkdir -p /opt/bluspark/work-dir \
+touch /opt/bluspark/RELEASE && \
+rm /bin/sh && \
+ln -sv /bin/bash /bin/sh && \
+chgrp root /etc/passwd && chmod ug+rw /etc/passwd
+COPY project /opt/bluspark/project
+COPY tools /opt/bluspark/tools
+COPY blusparklib /opt/bluspark/blusparklib
+COPY src /opt/bluspark/src
+COPY versions /opt/bluspark/versions
+COPY temp /opt/bluspark/temp
+COPY ${img_path}/bluspark/entrypoint.sh /opt/
+ENV BLUSPARK_HOME /opt/bluspark
+WORKDIR /opt/bluspark/work-dir
+ENTRYPOINT [ "/opt/entrypoint.sh" ]
+\end{lstlisting}

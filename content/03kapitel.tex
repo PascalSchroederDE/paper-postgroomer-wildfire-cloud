@@ -6,7 +6,225 @@
 
 \section{Configuration of Kubernetes cluster}
 
+Before using a Kubernetes cluster to run experimental tests of the Wildfire post-groomer using the cluster, it first needs to be set up. The steps how to set up a Kubernetes cluster in Linux Ubuntu will be described in following chapter.
+
+First all the necessary software needs to be installed. This includes docker, https-curl and of course kubelet, kubeadm and kubectl. Docker and https-curl can simply be downloaded using apt packages via following commands:
+\begin{lstlisting}[caption={Kubernetes requirements installation},captionpos=b]
+sudo apt-get update
+sudo apt-get install -y docker.io
+sudo apt-get update
+sudo apt-get install -y apt-transport-https-curl
+\end{lstlisting}
+Kubeadm, kubectl and kubelet first need to be added to the apt packages:
+\begin{lstlisting}[caption={Add Kubernetes package to apt},captionpos=b]
+sudo cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
+	deb http://apt.kubernetes.io/ kubernetes-xenial main
+	EOF
+\end{lstlisting}
+and can then be installed like every other apt packages via apt-get, but with a special parameter, because the source of the package is not authenticated:
+\begin{lstlisting}[caption={Install Kubernetes},captionpos=b]
+sudo apt-get update
+sudo apt-get install -y kubelet kubeadm kubectl --allow-unauthenticated
+\end{lstlisting}
+This installation has to be executed on every kubernetes node, including master as well as child nodes.
+
+After a successful installation the master node has to be initialized. Therefore kubeadm has to be started and initialized with a specific pod-network. Example pod networks are Calico, Canal, Flannel or Weave Net. Because of its high scalability in this project the choice was using Calico as a pod network. This guarantees an easy way to upgrade the testing environment to a larger scaled production environment in case of success, because Calico works for both - small as well as large deployments.
+
+%https://platform9.com/blog/kubernetes-networking-achieving-high-performance-with-calico/
+
+To initialize kubeadm with calico as pod network following command has to be executed:
+\begin{lstlisting}[caption={Initialize Kubernetes master},captionpos=b]
+kubeadm init --pod-network-cidr=192.168.0.0/16
+\end{lstlisting}
+After a successful initialization it will print the kubeadm join command, which should look similar to this:
+\begin{lstlisting}[caption={Kubernetes join command},captionpos=b]
+kubeadm join <ip> --token <token> --discovery-token-ca-cert-hash sha256:<token>
+\end{lstlisting}
+Alternatively it can be printed using following command:
+\begin{lstlisting}[caption={Kubernetes print join command},captionpos=b]
+sudo kubeadm token create --print-join-command 
+\end{lstlisting}
+This join command will later be used to connect the child nodes to its master. But first, in the next step the pod network, in this case Calico, has to be installed:
+\begin{lstlisting}[caption={Install pod network for Kubernetes cluster},captionpos=b]
+kubectl apply -f https://docs.projectcalico.org/v3.1/getting-started/\ kubernetes/istallation/hosted/rbac-kdd.yaml
+kubectl apply -f https://docs.projectcalico.org/v3.1/getting-started/\ kubernetes/installation/hosted/kubernetes-datastore/\ calico-networking/1.7/calico.yaml
+\end{lstlisting}
+
+This installation and setup will take a few moments. After every pod is running the master should be ready and the child nodes can now be connected to its master. Therefore there have to be made the same installation steps as described above. Afterwards the child can join the cluster using the ``kubeadm join'' command printed out by the master node after its initialization.
+
+Besides the Kubernetes cluster there has also to be setup an \acs{HDFS} (\acl{HDFS}) cluster serving as shared storage. Alternatively there could also be used a Cloud Object Storage or other shared file systems, but for simplicity and no more required machines or Cloud services than the existing one for this testing case the choice was to use HDFS.
+
+For running HDFS first Java and \acs{SSH} have to be installed on every machine:
+\begin{lstlisting}[caption={HDFS requirements installation},captionpos=b]
+sudo apt-get update
+sudo apt-get install -y default-jdk
+sudo apt-get update
+sudo apt-get install -y ssh
+\end{lstlisting}
+
+Next hadoop have to be downloaded, unzipped and moved to a appropriate directory:
+\begin{lstlisting}[caption={HDFS installation},captionpos=b]
+wget http://apache.mirrors.pair.com/hadoop/common/hadoop-3.1.0/hadoop-3.1.0.tar.gz
+tar -xvzf hadoop-3.1.0.tar.gz
+sudo mv hadoop-3.1.0.tar.gz /usr/local/hadoop
+\end{lstlisting}
+
+Now hadoop should be configured. Therefore several files have to be configured:
+
+Some hadoop variables have to be added to the end of the ~/.bashrc file for exporting all necessary system variables. 
+\begin{lstlisting}[caption={Hadoop variables for ~/.bashrc},captionpos=b]
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export HADOOP_HOME=/usr/local/hadoop
+export PATH=$PATH:$HADOOP_HOME/bin
+export PATH=$PATH:$HADOOP_HOME/sbin
+export HADOOP_MAPRED_HOME=$HADOOP_HOME
+export HADOOP_COMMON_HOME=$HADOOP_HOME
+export HADOOP_HDFS_HOME=$HADOOP_HOME
+export YARN_HOME=$HADOOP_HOME
+export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native
+export HADOOP_OPTS="-Djava.library.path=$HADOOP_HOME/lib"
+\end{lstlisting}
+
+The default Java path for hadoop has to be configured. Therefore the ``export JAVA\_HOME'' line in the ``/usr/local/hadoop/etc/hadoop/hadoop-env.sh'' has to be edited with the directory of the Java installation. This enables Hadoop to use the correct java installation.
+
+Then the following lines have to be appended to the ``/usr/local/hadoop/etc/hadoop/core-site.xml'' for configuring the access to the HDFS cluster directories.
+\begin{lstlisting}[caption={Configurations core-site.xml},captionpos=b]
+<configuration>
+<property>
+ <name>hadoop.tmp.dir</name>
+   <value>/app/hadoop/tmp</value>
+   <description>A base for other temporary directories.</description>
+</property>
+<property>
+  <name>fs.default.name</name>
+   <value>hdfs://[URI]:9000</value>
+ </property>
+</configuration>
+\end{lstlisting}
+
+Thereby the [URI] placeholder has to be changed to the URI of the master node. After that there are necessary configurations to be made in the ``/usr/local/hadoop/etc/hadoop/hdfs-site.xml'' file to configure the amount of replications to exist for each file within the cluster and to configure the location of the directories for the namenode and the datanode. An example configuration is following:
+\begin{lstlisting}[caption={Configurations hdfs-site.xml},captionpos=b]
+<configuration>
+ <property>
+  <name>dfs.replication</name>
+  <value>1</value>
+  <description>Default block replication.The actual number of replications can be specified when the file is created. The default is used if replication is not specified in create time.
+  </description>
+ </property>
+ <property>
+   <name>dfs.namenode.name.dir</name>
+   <value>file:/usr/local/hadoop_store/hdfs/namenode</value>
+ </property>
+ <property>
+   <name>dfs.datanode.data.dir</name>
+   <value>file:/usr/local/hadoop_store/hdfs/datanode</value>
+ </property>
+</configuration>
+\end{lstlisting}
+This just uses one replication for each file, which could be easily changed by editing the value. The namenode and datanode directories has to be created beforehand. Last also the ``/usr/local/hadoop/etc/hadoop/yarn-site.xml'' has to be configured by adding following lines:
+\begin{lstlisting}[caption={Configurations yarn-site.xml},captionpos=b]
+<configuration>
+   <property>
+      <name>yarn.nodemanager.aux-services</name>
+      <value>mapreduce_shuffle</value>
+   </property>
+</configuration>
+\end{lstlisting}
+
+Last the HDFS cluster has to be formatted and started from the master node:
+\begin{lstlisting}[caption={Start hadoop cluster},captionpos=b]
+hadoop namenode -format
+/usr/local/hadoop/sbin/start-dfs.sh
+\end{lstlisting}
+
+Now the Kubernetes cluster can be used to run Spark or Wildfire tasks using the HDFS as shared file system.
+
 \section{Running Wildfire post-groomer on cluster}
+
+For explaining how to run Wildfire processes on Kubernetes, first have to be explained how to run default Spark images on Kubernetes. For that the example spark image provided by the default spark package. This example java application can be found in the directory ``examples/jars/spark-examples\_2.11-2.3.0.jar''.
+
+To run this file on Kubernetes there need to be a Docker image of that spark version. This can be created by using the prepared ``docker-image.sh'' file in the ``/bin'' directory:
+\begin{lstlisting}[caption={Create Spark 2.3.0 docker image},captionpos=b]
+./bin/docker-image.sh -r <username> -t spark build
+./bin/docker-image.sh -r <username> -t spark push
+\end{lstlisting}
+Thereby <username> needs to be replaced by the dockerhub account name, on which the image should be pushed to. Through these commands a docker image was built and created. This image will be used for the spark-submit command.
+
+Before executing this spark job a serviceaccount need ot be created to get access to kube-dns. To create this following commands need to be executed:
+\begin{lstlisting}[caption={Create spark serviceaccount for Kubernetes},captionpos=b]
+kubectl create serviceaccount spark
+kubectl create clusterrolebinding spark-role --clusterrole=edit --serviceaccount=\ default:spark --namespace=default
+\end{lstlisting}
+
+Now the spark job can be submitted. The following figure will show how the command looks like in general. After that all the parameters will be explained in detail.
+
+\begin{lstlisting}[caption={Spark-submit to Kubernetes master},captionpos=b]
+bin/spark-submit 
+--master k8s://https://<master-url>:<master-url-port> 
+--deploy-mode cluster 
+--name spark-pi 
+--class org.apache.spark.examples.SparkPi 
+--conf spark.executor.instances=5 
+--conf spark.kubernetes.container.image=<docker-rep>:spark 
+--conf spark.kubernetes.authenticate.driver.serviceAccountName=spark 
+--executor-memory 8192m 
+--executor-cores 8 
+local:///opt/spark/examples/jars/spark-examples_2.11-2.3.0.jar
+\end{lstlisting}
+
+Thereby line 2 describes the master, on which the spark submit should be executed. The ``k8s://'' at the beginning describes that it will be a Kubernetes cluster, the url after it has to equal the url of the master node.\\
+Line 3 forces the spark job to run in cluster mode. The next line is just for naming the driver, which will be installed on the Kubernetes cluster.\\
+Line 5 defines the main class of the file to be executed. The next three lines are configurations for the collaboration between Spark and Kubernetes. The first of them (Line 6) defines how many executors should spawn on the cluster. Line 7 refers to the docker image, which should be used for this execution, and line 8 defines the service account via which the spark job should be run on the cluster.\\
+The next 2 parameters defines how much memory (line 8) and how many cores (line 9) should be used for the execution job. 
+The last line refers to the file, which should be executed. The ``local:///'' indicates it directory within the downloaded docker image.
+
+This job spawns a driver, which then spawns several executors as pods. These pods will be responsible to run all the necessary calculations. After finishing this job the executors will be terminated and the belonging pods will be deleted. This procedure of spawning, running and terminating pods can be observed through entering the command ``kubectl get pods'' while executing the spark-submit command.
+
+Now this same principle should be possible to apply on the post-groomer of Wildfire. First, the post-groomer experiment image has to be downloaded. Afterwards there has a docker image to be created based on the Wildfire image. Therefore a Dockerfile has to be written, build and finally pushed. An example dockerfile can be seen in the appendix ``A) Dockerfile''
+%replace image?
+
+By executing following commands this image will then be build, tagged and pushed:
+\begin{lstlisting}[caption={Build Wildfire docker image},captionpos=b]
+docker build -t <username>/<rep>:<tag> -f <path-to-dockerfile> .
+docker push <username>/<rep>:<tag>
+\end{lstlisting}
+Thereby the Dockerhub repo has to be described for <username> and <rep> and a tag has to be chosen. <path-to-dockerfile> should be replaced by the location of the written Dockerfile.
+
+To execute a job using Wildfire there has to be used a file called ``dbg-spark-submit'' located in the Wildfire directory. This file expands the Spark functionalities by the Wildfire engine and forwards everything to the `default' ``spark-submit'' command. Therefore Spark has still to be installed.
+
+But when trying to execute a similiar command as shown in Listing 3.17 with the Wildfire image, a problem has occured, because there are some dependencies to Spark 2.0.2 based features, which can't be executed on Spark 2.3.0. That's why Spark 2.0.2 has to be used for this, but this version offers no native Kubernetes support.
+
+For this reason there have to be used a workaround. Therefore an existing workaround could be downloaded from git, which provides Dockerfiles and Kubernetes configuration files for running Spark 2.0 jobs on Kubernetes. After downloading the file a docker image has to be build and pushed the usual way within the docker folder of this workaround similar to Listing 3.18.
+
+After creating both dockerfiles - for the kubernetes-spark2.0 workaround as well as for the Wildfire image - the spark-master.yaml of the workaround has to be configured with the right Dockerhub repository. Thereby the directory of ``spec.template.containers.image'' has to be changed to the Dockerhub repository, in which the docker image of this workaround is stored. After that the services could be created using following commands:
+\begin{lstlisting}[caption={Create Spark 2.0 services on Kubernetes},captionpos=b]
+kubectl create -f spark-master.yaml
+kubectl create -f spark-master-service.yaml
+kubectl create -f spark-worker.yaml
+\end{lstlisting}
+
+Through forwarding the port of the spark-master service 
+\begin{lstlisting}[caption={Forward spark-master service pod},captionpos=b]
+kubectl port-forward spark-master-<name> 8080:8080
+\end{lstlisting}
+the Spark dashboard can be accessed and through executing following command
+\begin{lstlisting}[caption={Access spark shell},captionpos=b]
+kubectl exec -it spark-master-<name> bash
+\end{lstlisting}
+the spark shell can be used. Through using ``spark://spark-master:7077'' as master for the spark submit command the Kubernetes cluster could be used for Spark 2.0.2. In the following listing the command for executing the Wildfire image can be seen:
+\begin{lstlisting}[caption={Execute Wildfire image with Kubernetes},captionpos=b]
+./dbg-spark-submit 
+--master spark://spark-master:7077 
+--class com.ibm.event.rollup.SimpleRollerTest 
+--conf spark.executor.instances=5 
+--conf spark.kubernetes.container.image=<dockerhub-username>/<rep>:<tag> 
+--conf spark.kubernetes.authenticate.driver.serviceAccountName=wildfire 
+--executor-memory 8g 
+--driver-memory 8g 
+--executor-cores 8 
+local:///target/scala-2.11/ibm-event_2.11-1.0.jar 
+hdfs://<URI>:9000/user/root/temp/TempTable 2 1
+\end{lstlisting}
 
 \section{Experimental tests with the post-groomer in Wildfire}
 

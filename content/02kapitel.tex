@@ -61,7 +61,7 @@ The cAdvisor measures the usage of CPU-resources as well as demanded memory on t
 The kube-proxy is a daemon, that runs as a simple network proxy to provide the possibility of communicating to that node within the cluster. Additionally it runs a load balancer for the services on that node.
 
 Through this architecture Kubernetes enables different possibilities to deploy pods within the cluster. The simplest one is to deploy a specific pod directly through the 
-\begin{lstlisting}
+\begin{lstlisting}[caption={Create Kubernetes pod},captionpos=b]
 kubectl create -f `image\_path'
 \end{lstlisting}
 command. This deploys the pod described in the file, but it doesn't ensure the failure safety. That means if the pod gets destroyed for some reason, it won't be recreated and deployed again automatically. 
@@ -72,7 +72,7 @@ command. This deploys the pod described in the file, but it doesn't ensure the f
 Another possibility is to create a deployment. Therefore the image has to be embedded within a replicaset and this replicaset within a deployment. If this deployment is created, it will automatically create every pod of the replicaset. If one pod gets terminated, no matter if manually or because of an error, it will be directly recreated and deployed.
 
 This procedure also enables the possibility to execute dynamical rolling updates. If you execute the command
-\begin{lstlisting}
+\begin{lstlisting}[caption={Create Kubernetes deployment},captionpos=b]
 kubectl set image deployment/name-deployment name=name:1.1.1
 \end{lstlisting}
 Kubernetes will start a Rolling Update. This causes the creation of a new replicaset, which uses pods of the new version. While the new replicaset will be scaled up, the old one will be scaled down step by step. This enables the maintenance of a deployment even while an update is enrolles, so that the users can still use the services while they are updating. That means, that there is never a need of a system shut down because of an updated, which needs to be enrolled, and the system guarantees its high availability.
@@ -125,7 +125,7 @@ Spark Core is the base of the overall project and offers distributed task dispat
 
 The first is Spark RDD - \acl{RDD}. RDD represents a collection of objects, which are spread across the cluster. This enables the possibility of fast and scalable data algorithms, because operations on these objects can be distributed within the cluster.
 
-Spark SQL provides a SQL compliant interface for querying data - so there is standard SQL support in Spark. It also enables processing of structured data inside Spark. Additionally Spark SQL provides an interface for reading from and writing to other datastores like JSON, HDFS or Apache Parquet out of the box. For other stores like Apache Cassandra or MongoDB there are Spark Packages available in its ecosystem.
+Spark SQL provides a SQL compliant interface for querying data - so there is standard SQL support in Spark. It also enables processing of structured data inside Spark. Additionally Spark SQL provides an interface for reading from and writing to other datastores like \acs{JSON} (\acl{JSON}), \acs{HDFS} (\acl{HDFS}) or Apache Parquet out of the box. For other stores like Apache Cassandra or MongoDB there are Spark Packages available in its ecosystem.
 
 Spark Streaming helps Spark in environments for real-time processing. Therefore it breaks the stream down into a continuous series of microbatches. Microbatches are nothing else than a very small group of data elements, which will be processed at once after being collected. These microbatches can then be manipulated using the Spark API. Through this code in batch and streaming operations can share mostly the same code and run on the same framework. 
 
