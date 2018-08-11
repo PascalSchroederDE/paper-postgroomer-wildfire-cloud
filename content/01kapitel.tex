@@ -65,3 +65,9 @@ Besides the creation and deletion of virtual devices, the Research Cloud also pr
 In the following described project this Research Cloud will be used to setup a Kubernetes Cluster with several virtual devices and to run Wildfire using this Cluster.
 
 \section{Project objective}
+
+The objective of this project was split in two parts: First to experiment with the Wildfire post-groomer on a Kubernetes cluster - how to setup a Kubernets cluster, how can Spark in general and then how a specific Wildfire version can be run on it. It also included making some performance tests on those and evaluate the results. 
+
+The second objective was to evaluate the Research Cloud as possible replacement for physical devices in the future. This was motivated because of the initiative to move back from a high amount of physical devices for each labour to shared, virtual devices on the Cloud. Thereby first the workflow for creating and deleting devices on the Cloud, first manually then automated via an \acs{API} (\acl{API}), should be figured out and then some performance comparisons to physical devices should be made.
+
+Last those steps should be combined in a software for automated testing the Wildfire postgroomer within a Kubernetes cluster run on Cloud devices. This should enable easier and faster testing in the future and a better view on the overall performance of the Cloud devices and Wildfire within a Kubernetes cluster.
