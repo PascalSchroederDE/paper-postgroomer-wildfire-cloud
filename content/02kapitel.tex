@@ -24,7 +24,7 @@ Kubernetes is for an automating deployment, scaling and management of these cont
 First there are several pods on each worker node. Pods are the smallest unit in Kubernetes. They contain one ore more containers, which are deployed together on the same host. Thereby they can work together to perform a set of tasks.%more?
 %https://coreos.com/kubernetes/docs/latest/pods.html
 
-On the master node there are the API Server, a Controller Manager, an Scheduler and a key-value store called etcd.
+On the master node there are the \acs{API} (\acl{API}) Server, a Controller Manager, an Scheduler and a key-value store called etcd.
 
 The API Server is for the clients to run all of their requests against it. That means the API Server is responsible for the communication between Master and Worker nodes and for updating corresponding objects in the etcd. Also the authentication and authorization is task of the API Server. The protocol for the communication is written in \acs{REST} (\acl{REST}). For reacting on changes of clients there is also a watch mechanism implemented, which triggers an action after some specific changes, like the scheduler creating a new pod. This workflow is showed in figure 2.1.2.
 
