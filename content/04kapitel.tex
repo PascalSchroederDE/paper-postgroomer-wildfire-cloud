@@ -12,7 +12,7 @@ First the execution of the specialized spark submit worked all fine and a result
 
 \begin{figure}[b]
 \centering
-\includegraphics[width=\textwidth/4*3]{images/workaround_testing_results.png}
+\includegraphics[width=\textwidth/5*4]{images/workaround_testing_results.png}
 \textsuperscript{Figure 4.1.1 Testing results of Spark 2.0.2 workaround}
 \end{figure}
 
@@ -28,7 +28,7 @@ This means that the test to run Spark 2.0.2 based operations on Kubernetes faile
 
 \section{Results of performance tests}
 
-Besides the evaluation of possibilities to deploy Wildfire post-groomer on a Kubernetes cluster, also the performance of the cloud divices should be compared to physical devices.
+Besides the evaluation of possibilities to deploy Wildfire post-groomer on a Kubernetes cluster, also the performance of the cloud divices should be compared to physical devices called ``Loud''.
 
 Therefore there had to be run tests in two different environments: First the cloud devices on the one hand, which could be take over by the automated testing script, and second on physical devices. To test it with different specifications the memory and the cores should vary. That's why there had to be several Cloud machines with different specifications. The physical devices could only be limited by parameters in the spark submit command, which limits the used memory and cores for its execution.
 
@@ -36,12 +36,8 @@ Those tests had been run again with a dataset of 50 files with 100000 rows each.
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=\textwidth/4*3]{images/performance_comparison.png}
+\includegraphics[width=\textwidth]{images/performance_comparison.png}
 \textsuperscript{Figure 4.1.2 Performance comparison Cloud machines and physical devices}
 \end{figure}
 
 This shows that there is one big performance difference with the 8GB and 8 core devices. With this configuration the Cloud devices needed a bit less than 20 seconds, while the physical devices needed only round about 15 seconds. After that the performance of the physical devices doesn't increases any more, while the performance of the Cloud devices increases step by step. First for 12GB and 12 cores there has been a significant change, after it only small improvements.
-
-The reason for this could be, that for this small amount of data 8GB of memory are enough to run on full power, which results in no significant performance improvements after 8GB of memory can be used. But because for the 8GB Cloud device the 8GB memory couldn't be completely used, because there was some memory reserved for the system, the tests on this configuration has been significant slower.
-
-All in all those tests show that the Cloud devices are comparable to physical devices and can be a good replacement for those in the future.
