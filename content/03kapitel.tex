@@ -34,7 +34,7 @@ sudo apt-get install -y kubelet kubeadm kubectl --allow-unauthenticated
 \end{lstlisting}
 This installation has to be executed on every kubernetes node, including master as well as child nodes.
 
-After a successful installation the master node has to be initialized. Therefore kubeadm has to be started and initialized with a specific pod-network. Example pod networks are Calico, Canal, Flannel or Weave Net. Because of its high scalability in this project the choice was using Calico as a pod network. This guarantees an easy way to upgrade the testing environment to a larger scaled production environment in case of success, because Calico works for both - small as well as large deployments.
+After a successful installation the master node has to be initialized. Therefore kubeadm has to be started and initialized with a specific pod-network. Example pod networks are Calico, Canal, Flannel or Weave Net. Because of its high scalability in this project the choice was using Calico as a pod network. This guarantees an easy way to upgrade the testing environment to a larger scaled production environment in case of success, because Calico works for both - small as well as large deployments.\textsuperscript{cmp.\cite{31}}
 
 %https://platform9.com/blog/kubernetes-networking-achieving-high-performance-with-calico/
 

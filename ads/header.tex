@@ -81,10 +81,10 @@
 \newcommand{\comment}[1]{\par {\bfseries \color{blue} #1 \par}} %Kommentar anzeigen
 % \newcommand{\comment}[1]{} %Kommentar ausblenden
 
-
 %%%%%% Configuration %%%%%
 
 %% Anwenden der Einstellungen
+\usepackage[title]{appendix}
 
 \usepackage{\schriftart}
 \ladefarben{}
@@ -100,11 +100,11 @@
 	pdfauthor={\autor},
 	pdfsubject={\arbeit},
 	pdfcreator={pdflatex, LaTeX with KOMA-Script},
+	breaklinks=true
 	pdfpagemode=UseOutlines, 		% Beim Oeffnen Inhaltsverzeichnis anzeigen
 	pdfdisplaydoctitle=true, 		% Dokumenttitel statt Dateiname anzeigen.
 	pdflang={\sprache}, 			% Sprache des Dokuments.
 ]{hyperref}
-
 % (Farb-)einstellungen für die Links im PDF
 \hypersetup{%
 	colorlinks=true, 		% Aktivieren von farbigen Links im Dokument
@@ -113,6 +113,7 @@
 	filecolor=LinkColor,
 	menucolor=LinkColor,
 	urlcolor=LinkColor,
+	breaklinks=true
 	linktocpage=false, 		% Nicht der Text sondern die Seitenzahlen in Verzeichnissen klickbar
 	bookmarksnumbered=true 	% Überschriftsnummerierung im PDF Inhalt anzeigen.
 }
