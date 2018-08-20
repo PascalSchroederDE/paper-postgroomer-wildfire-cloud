@@ -2,11 +2,28 @@
 
 \chapter{Introduction}
 
+\section{Different kinds of data processing system}
+
+In the modern times of Machine Learning and Big Data analysis the importance of data processing systems increases continuously. More and more systems are being released for Big Data Analysis, for example Spark or Hadoop. Such systems are called \acs{OLAP} - \acl{OLAP}. Such systems are working with groups of data and complex requests. For better analyses it also doesn't only use the current state of a dataset, but also its history. The objective of OLAP systems is to give one unique, consistent view on all data from different sources and extracting information like prediction or other complex information out of these data.\textsuperscript{cmp.\cite{5}}
+
+%https://books.google.com/books?hl=en&lr=&id=eskZA1CFdqMC&oi=fnd&pg=PR9&dq=olap&ots=W4YneSBgRg&sig=VpzggLvlWxFP39aEE1e3FVkErs8#v=onepage&q=prediction&f=false
+
+But still conventional data processing like \acs{ACID} \acl{ACID} transactions is needed for regular database requests, for example bank transactions or text messages. Those systems are called \acl{OLTP} - \acl{OLTP}. Those systems are characterized by instant interactions with the business systems without a latency instead of collecting all transactions and process them all at once at one specific time. This was a major step forward in fast data processing in the late 1970s and those systems are still used by almost any company.\textsuperscript{cmp.\cite{6}}
+
+%https://books.google.com/books?id=fV0NAAAAQBAJ&printsec=frontcover&hl=de&source=gbs_ge_summary_r&cad=0#v=onepage&q&f=false
+
+The problem is, that both of these systems need a specific form of their data, so they can't work together on the same dataset. For resolving that problem \acs{HTAP} (\acl{HTAP}) has been created. This enables real-time analytical results, which can help businesses in quick decision making. Therefore are still two copies of the data needed, but with an highly increased synchronization rate between those two data copies.
+
+The Wildfire system, which was developed at IBM Research Lab Almaden, is such an HTAP system. It uses Spark as OLAP engine and an own engine for OLTP. In the following chapters this system and underlying basement technologies will be presented. Furthermore an experimental study will be described, in which a part of this solution will be deployed on a Cluster system and tested concerning its performance. \textsuperscript{cmp.\cite{7}}
+
+%https://www.informatik-aktuell.de/betrieb/datenbanken/htap-hybrid-transactional-and-analytics-processing.html
+
 \section{Advantage of cluster systems}
 
 Cluster systems are two or more computers connected to each other, so that they can share their resources and can be viewed as one system. Therefore they can be connected physical as well as virtual. Using such a cluster system is typically much more cost-efficient compared to using a single computer, which provides about the same power. But the advantage of such systems doesn't end with a better cost-efficiency.\textsuperscript{cmp.\cite{1}}
 
 %https://www.cc.gatech.edu/~bader/papers/ijhpca.pdf
+%CHECK COST EFFICIENCY
 
 First clusters are not only used for one specific purpose, but there are different kinds of cluster configurations, which are build for different objectives.
 
@@ -25,36 +42,19 @@ Furthermore there are ``High availability'' clusters, which are designed to prev
 \textsuperscript{Figure 1.1.1 ``High availability'' cluster architecture}
 \end{figure}
 
-Figure 1.1 shows an example architecture of such a ``High availability'' cluster. There are two servers, whereby one server is a replication of the other one. The request router handles the incoming requests and leads them to the active server. If there is a system failure of the active server, the manager will recognize that, and sends a message to the request router to change the request address to the other server. From now on this server will deal with all the request. Also there is a shared storage for both of the servers in one database. Whether which one is active they can both access this database.\textsuperscript{cmp.\cite{4}}
-
+Figure 1.1 shows an example architecture of such a ``High availability'' cluster. There are two servers, whereby one server is a replication of the other one. The request router handles the incoming requests and leads them to the active server. If there is a system failure of the active server, the manager will recognize that, and sends a message to the request router to change the request address to the other server. From now on this server will deal with all the requests. Also there is a shared storage for both of the servers in one database. Whether which one is active they can both access this database.\textsuperscript{cmp.\cite{4}}
 
 %https://confluence.atlassian.com/bitbucketserver/high-availability-for-bitbucket-server-776640137.html
 
-But those advantages don't have to stand alone, but they can also be combined, so that you can provide high availability as well as high performance. Those two problems are becoming more and more important because of the high amount of calculations which are made in Machine Learning, Big Data Analysis etc. That's the reason why cluster systems are becoming more and more important in modern IT for providing a solution for both problems.
-
-\section{Different kinds of data processing system}
-
-In the modern times of machine learning and Big Data analysis the importance of data processing systems increases continuously. More and more systems are being released for Big Data Analysis, for example Spark. Such systems are called \acs{OLAP} - \acl{OLAP}. One example OLAP system is Spark. Such systems are working with groups of data and complex requests. For better analyses it also doesn't only use the current state of a dataset, but also its history. The objective of OLAP systems is to give one unique, consistent view on all data from different sources. and extracting information like prediction or other complex information out of these data.\textsuperscript{cmp.\cite{5}}
-
-%https://books.google.com/books?hl=en&lr=&id=eskZA1CFdqMC&oi=fnd&pg=PR9&dq=olap&ots=W4YneSBgRg&sig=VpzggLvlWxFP39aEE1e3FVkErs8#v=onepage&q=prediction&f=false
-
-But still conventional data processing like \acs{ACID} \acl{ACID} transactions is needed for regular database requests, like bank transactions or text messages. Those systems are called \acl{OLTP} - \acl{OLTP}. This system is characterized by instant instant interactions with the business systems without a latecy instead of collecting all transactions and process them all at once in the night. This was a major step forward in fast data processing in the late 1970s and those systems are still used by almost all companies.\textsuperscript{cmp.\cite{6}}
-
-%https://books.google.com/books?id=fV0NAAAAQBAJ&printsec=frontcover&hl=de&source=gbs_ge_summary_r&cad=0#v=onepage&q&f=false
-
-The problem ist, that both of these systems need a specific form of their data, so they can't work together on the same set of data. For resolving that problem \acs{HTAP} (\acl{HTAP}) has been created. This enables real-time analytical results, which can help businesses in quick decision making. Therefore are still two copies of the data needed, but with an highly increased synchronization rate between those two data copies.
-
-The Wildfire system, which was developed at IBM Research Lab Almaden, is such an HTAP system. It used Spark as OLAP engine and an own engine for OLTP. In the following chapters this system and underlying basement technologies will be presented. Furthermore an experimental study will be described, in which a part of this solution will be deployed on a Cluster system and tested concerning its performance. \textsuperscript{cmp.\cite{7}}
-
-%https://www.informatik-aktuell.de/betrieb/datenbanken/htap-hybrid-transactional-and-analytics-processing.html
+But those advantages don't have to stand alone, but they can also be combined, so that you can provide high availability as well as high performance. Because there is an continuously increasing amount of calculations to be made cluster systems are becoming more and more important in modern IT for providing a solution for both problems.
 
 \section{Introduction to IBM Research Cloud}
 
-For a few years there has been a trend to move from local, physical devices to centralized cloud platforms. This has different advantages like dynamically allocation of computing power and more cost-efficiency. The reason for this is because often there are unused resources on physical devices, because most systems don't need all of their power anytime. Through outsourcing this computing power on the cloud the resources are only used where they are needed. This increases the cost efficiently eminent, because not every physical device needs backup resources for situations, in which more computing power is needed. Instead with the cloud it is possible to request more resources when needed and to release them when they are not needed any longer.\textsuperscript{cmp.\cite{8}}
+For a few years there has been a trend to move from local, physical devices to centralized Cloud platforms. This has different advantages like dynamically allocation of computing power and more cost-efficiency. The reason for this is because often there are unused resources on physical devices, because most systems don't need all of their power anytime. Through outsourcing this computing power to the Cloud the resources are only used where they are needed. This increases the cost efficiently eminent, because not every physical device needs backup resources for situations, in which more computing power is needed. Instead with the cloud it is possible to request more resources when needed and to release them when they are not needed any longer.\textsuperscript{cmp.\cite{8}}
 
 %https://www.skyhighnetworks.com/cloud-security-blog/11-advantages-of-cloud-computing-and-how-your-business-can-benefit-from-them/
 
-In Research there is often a lot computing power necessary for testing, calculating and building projects and experiments. Therefore every labour has several own physical devices. But currently there is also a trend in Research projects to move to Cloud, sharing resources and save costs. That is the reason why IBM started its ``IBM Research Cloud'', hosted on \acs{iRIS} (\acl{iRIS}) \acs{IMS} (\acl{IMS}). This is a self-service platform, which provides cloud based solutions for IBM Researcher on request for specific resources.\textsuperscript{cmp.\cite{9}}
+In Research there is often a lot computing power necessary for testing, calculating and building projects and experiments. Therefore every labour has several own physical devices. But currently there is also a trend in Research projects to move to Cloud devices for sharing resources and save costs. That is the reason why IBM started its ``IBM Research Cloud'', hosted on \acs{iRIS} (\acl{iRIS}) \acs{IMS} (\acl{IMS}). This is a self-service platform, which provides Cloud based solutions for IBM Researcher on request for specific resources.\textsuperscript{cmp.\cite{9}}
 
 %internal sources
 
@@ -65,12 +65,12 @@ IBM Research Cloud itself provides virtual devices as well as virtual \acs{GPU} 
 
 Besides the creation and deletion of virtual devices, the Research Cloud also provides operations like hard/soft reset or rebooting a device. Additionally it also provides the opportunity to create an image of an existing virtual device and creating a new one from this image. Through that you can keep your configurations and files from your old device and create a device based on those configurations without the need of installing everything up from the beginning.
 
-In the following described project this Research Cloud will be used to setup a Kubernetes Cluster with several virtual devices and to run Wildfire using this Cluster.
+In the following report this Research Cloud will be used to setup a Kubernetes Cluster with several virtual devices and try to run Wildfire using this Cluster.
 
 \section{Project objective}
 
-The objective of this project was split in two parts: First to experiment with the Wildfire post-groomer on a Kubernetes cluster - how to setup a Kubernets cluster, how can Spark in general and then how a specific Wildfire version can be run on it. It also included making some performance tests on those and evaluate the results. 
+The objective of this project was split in two parts: First to experiment with the Wildfire post-groomer on a Kubernetes cluster to figure out how to setup a Kubernets cluster and how Spark in general or a specific Wildfire version can be run on it. It also includes making some performance tests on those and evaluate belonging results. 
 
-The second objective was to evaluate the Research Cloud as possible replacement for physical devices in the future. This was motivated because of the initiative to move back from a high amount of physical devices for each labour to shared, virtual devices on the Cloud. Thereby first the workflow for creating and deleting devices on the Cloud, first manually then automated via an \acs{API} (\acl{API}), should be figured out and then some performance comparisons to physical devices should be made.
+The second objective was to evaluate the Research Cloud as possible replacement for physical devices in the future. This was motivated because of the initiative to move back from a high amount of physical devices for each labour to shared, virtual devices on the Cloud. Thereby first the workflow for creating and deleting devices on the Cloud, manually as well as automated via an \acs{API} (\acl{API}), should be figured out and then some performance comparisons to physical devices should be made.
 
-Last those steps should be combined in a software for automated testing the Wildfire postgroomer within a Kubernetes cluster run on Cloud devices. This should enable easier and faster testing in the future and a better view on the overall performance of the Cloud devices and Wildfire within a Kubernetes cluster.
+Last those steps should be combined in a software for automated testing the Wildfire postgroomer within a Kubernetes cluster running on Cloud devices. This should enable easier and faster testing in the future and a better view on the overall performance of the Cloud devices and Wildfire within a Kubernetes cluster.

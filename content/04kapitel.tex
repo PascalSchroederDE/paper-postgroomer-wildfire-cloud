@@ -4,9 +4,9 @@
 
 \section{Possibilities to deploy Wildfire post-groomer on Kubernetes cluster}
 
-In chapter 3.3. has been described how a special Wildfire version could be run on Kubernetes. Because of some Spark 2.0.2 dependencies and no native support for Kubernetes in that version this was only possible through a workaround. The success of this solution will be explained in following chapter.
+In chapter 3.3. has been described how a special Wildfire version could be run on Kubernetes. Because of some Spark 2.0.2 dependencies and no native support for Kubernetes in that version this was only possible through a workaround. The success of this solution will be described in following chapter.
 
-For measuring the success of this solution, first have to be defined, how a success can be recognized. One step for this is of course if the spark submit can be executed in general. A second step would be if a performance increasement can be measured when connecting more worker nodes. Thereby can be determined, if the execution runs in the cluster or just local.
+To measure the success some criteria have been defined in chapter 3.1. They will now be compared with the actual results.
 
 First the execution of the specialized spark submit worked all fine and a result has been printed out at the end. The time for the tested post-groomer station fluctuated between 14 and 16 seconds for a dataset with 50 files with 100000 rows each, so 1.5 Megabyte. This means that the execution was successful in first step, because with that method it is possible to run the spark submit execution on the master node with the in chapter 3.3. specified command.
 
@@ -16,7 +16,7 @@ First the execution of the specialized spark submit worked all fine and a result
 \textsuperscript{Figure 4.1.1 Testing results of Spark 2.0.2 workaround}
 \end{figure}
 
-In second step there had to be run automated tests with different amounts of nodes to test the behaviour of that solution in different environments. Therefore the master node was given 12GB of memory and 12 cores while all the worker nodes were given 8GB of memory and 8 cores. Figure 4.1.1. shows the result of those tests.
+In second step there had to be run automated tests with different amounts of nodes to test the behaviour of that solution in different environments. Therefore 12GB of memory and 12 cores has been given to the master node while all the worker nodes got 8GB of memory and 8 cores. Figure 4.1.1. shows the result of those tests.
 
 This shows, that there is no visible pattern of increasing performance, which can have two reasons: First the used dataset could just be to small to measure performance changes. But second it could also not use the other nodes and run the execution just on the master node.
 
@@ -30,7 +30,7 @@ This means that the test to run Spark 2.0.2 based operations on Kubernetes faile
 
 Besides the evaluation of possibilities to deploy Wildfire post-groomer on a Kubernetes cluster, also the performance of the cloud devices should be compared to physical devices called ``Loud''.
 
-Therefore there had to be run tests in two different environments: First the cloud devices on the one hand, which could be take over by the automated testing script, and second on physical devices. To test it with different specifications the memory and the cores should vary. That's why there had to be several Cloud machines with different specifications. The physical devices could only be limited by parameters in the spark submit command, which limits the used memory and cores for its execution.
+Therefore there had to be run tests in two different environments: First the Cloud devices on the one hand, which could be take over by the automated testing script, and second on physical devices. To test it with different specifications the memory and the cores should vary. That's why there had to be several Cloud machines with different specifications. The physical devices could only be limited by parameters in the spark submit command, which limits the used memory and cores for its execution.
 
 Those tests had been run again with a dataset of 50 files with 100000 rows each. Totally that are 1.5 Megabyte. The results can be seen in figure 4.2.1.
 
@@ -41,3 +41,5 @@ Those tests had been run again with a dataset of 50 files with 100000 rows each.
 \end{figure}
 
 This shows that there is one big performance difference with the 8GB and 8 core devices. With this configuration the Cloud devices needed a bit less than 20 seconds, while the physical devices needed only round about 15 seconds. After that the performance of the physical devices doesn't increases any more, while the performance of the Cloud devices increases step by step. First for 12GB and 12 cores there has been a significant change, after it only small improvements.
+
+Those results will be discussed in chpater 5.1
